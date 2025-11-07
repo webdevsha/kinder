@@ -74,7 +74,7 @@ export default function Library() {
       <main className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6">
         <div className="mb-8">
           <div className="mb-4 flex items-center justify-between">
-            <h1 className="text-3xl font-bold">Perpustakaan Artikel</h1>
+            <h1 className="text-3xl font-bold">Perpustakaan Kandungan</h1>
             <Button
               onClick={() => {
                 setShowInput(!showInput);
@@ -84,7 +84,7 @@ export default function Library() {
               data-testid="button-add-article"
             >
               <Plus className="h-4 w-4" />
-              Tambah Artikel
+              Tambah Kandungan
             </Button>
           </div>
           
@@ -98,7 +98,7 @@ export default function Library() {
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Cari artikel..."
+              placeholder="Cari kandungan..."
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);

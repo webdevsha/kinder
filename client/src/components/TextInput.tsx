@@ -25,10 +25,10 @@ export default function TextInput() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-primary" />
-          Tambah Artikel Baharu
+          Tambah Kandungan Baharu
         </CardTitle>
         <CardDescription>
-          Tampal teks atau masukkan pautan untuk menukar kepada artikel pembelajaran
+          Tampal teks atau masukkan pautan untuk menukar kepada buku teks dinamik
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -44,7 +44,7 @@ export default function TextInput() {
           
           <TabsContent value="paste" className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="text-input">Teks Artikel</Label>
+              <Label htmlFor="text-input">Teks Kandungan</Label>
               <Textarea
                 id="text-input"
                 value={text}
@@ -52,7 +52,7 @@ export default function TextInput() {
                   setText(e.target.value);
                   console.log('Text length:', e.target.value.length);
                 }}
-                placeholder="Tampal artikel anda di sini..."
+                placeholder="Tampal kandungan anda di sini..."
                 className="min-h-64 resize-none"
                 data-testid="textarea-article-text"
               />
@@ -64,7 +64,7 @@ export default function TextInput() {
           
           <TabsContent value="url" className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="url-input">Pautan Artikel</Label>
+              <Label htmlFor="url-input">Pautan Kandungan</Label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Link2 className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -83,7 +83,7 @@ export default function TextInput() {
                 </div>
               </div>
               <p className="text-sm text-muted-foreground">
-                Masukkan pautan ke artikel dari Berita Harian atau sumber lain
+                Masukkan pautan ke artikel, berita, atau kandungan dari mana-mana sumber
               </p>
             </div>
           </TabsContent>
@@ -98,7 +98,7 @@ export default function TextInput() {
             data-testid="button-process-article"
           >
             <Sparkles className="h-4 w-4" />
-            Proses Artikel
+            Proses Kandungan
           </Button>
         </div>
       </CardContent>

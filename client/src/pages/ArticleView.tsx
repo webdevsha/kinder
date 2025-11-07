@@ -66,7 +66,7 @@ Pelajar-pelajar kini lebih kerap mengunjungi perpustakaan untuk membaca buku-buk
             <div className="mx-auto max-w-reading">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="article" data-testid="tab-article">
-                  Artikel
+                  Kandungan
                 </TabsTrigger>
                 <TabsTrigger value="quiz" data-testid="tab-quiz">
                   Kuiz
@@ -117,7 +117,7 @@ Pelajar-pelajar kini lebih kerap mengunjungi perpustakaan untuk membaca buku-buk
               <div className="mb-6">
                 <h2 className="mb-2 text-2xl font-bold">Aktiviti Penulisan</h2>
                 <p className="text-muted-foreground">
-                  Luahkan pemikiran anda tentang artikel ini
+                  Luahkan pemikiran anda tentang kandungan ini
                 </p>
               </div>
               

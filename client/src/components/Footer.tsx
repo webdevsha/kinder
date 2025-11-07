@@ -8,10 +8,10 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <BookOpen className="h-5 w-5 text-primary" />
-              <span className="font-semibold">Pelita</span>
+              <span className="font-semibold">Kinder</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              Platform bacaan adaptif untuk pelajar Malaysia
+              Buku teks dinamik adaptif untuk pelajar Malaysia
             </p>
           </div>
           
@@ -44,7 +44,7 @@ export default function Footer() {
         </div>
         
         <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
-          © 2025 Pelita. Semua hak terpelihara.
+          © 2025 Kinder. Semua hak terpelihara.
         </div>
       </div>
     </footer>

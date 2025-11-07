@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import heroImage from "@assets/generated_images/Malaysian_students_reading_together_39b7abcb.png";
+import heroImage from "@assets/generated_images/Students_collaboration_illustration_a9246780.png";
 
 export default function Hero() {
   return (
@@ -18,10 +18,10 @@ export default function Hero() {
         <div className="mx-auto w-full max-w-7xl px-4 md:px-6">
           <div className="max-w-2xl space-y-6 text-white">
             <h1 className="text-4xl font-bold leading-tight md:text-5xl">
-              Platform Bacaan Adaptif untuk Pelajar Malaysia
+              Buku Teks Dinamik Adaptif untuk Pelajar Malaysia
             </h1>
             <p className="text-lg text-white/90">
-              Transformasi teks kompleks kepada pengalaman pembelajaran yang disesuaikan dengan tahap bacaan setiap pelajar
+              Transformasi apa sahaja teks kepada buku teks dinamik yang disesuaikan dengan tahap bacaan setiap pelajar
             </p>
             <div className="flex flex-wrap gap-3">
               <Button 

@@ -1,6 +1,6 @@
 import FeatureCard from '../FeatureCard';
 import { Layers } from 'lucide-react';
-import featureImage from '@assets/generated_images/Text_leveling_concept_illustration_6b3a0d97.png';
+import featureImage from '@assets/generated_images/Text_leveling_graphic_731cc53d.png';
 
 export default function FeatureCardExample() {
   return (

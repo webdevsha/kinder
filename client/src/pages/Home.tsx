@@ -3,9 +3,9 @@ import Hero from "@/components/Hero";
 import FeatureCard from "@/components/FeatureCard";
 import Footer from "@/components/Footer";
 import { Layers, HelpCircle, PencilLine, Users, BookOpen, TrendingUp } from "lucide-react";
-import textLevelingImg from "@assets/generated_images/Text_leveling_concept_illustration_6b3a0d97.png";
-import quizImg from "@assets/generated_images/Quiz_feature_illustration_df8c0306.png";
-import writingImg from "@assets/generated_images/Writing_prompts_illustration_0cce9d89.png";
+import textLevelingImg from "@assets/generated_images/Text_leveling_graphic_731cc53d.png";
+import quizImg from "@assets/generated_images/Quiz_feature_graphic_f57242f5.png";
+import writingImg from "@assets/generated_images/Writing_prompts_graphic_e2fb36c6.png";
 
 export default function Home() {
   return (
@@ -25,7 +25,7 @@ export default function Home() {
           <FeatureCard
             icon={Layers}
             title="Tahap Bacaan Berbeza"
-            description="Setiap artikel disesuaikan kepada 5 tahap bacaan untuk memastikan pemahaman optimum"
+            description="Setiap kandungan disesuaikan kepada 5 tahap bacaan untuk memastikan pemahaman optimum"
             image={textLevelingImg}
           />
           <FeatureCard
