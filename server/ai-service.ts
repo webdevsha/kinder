@@ -1,4 +1,4 @@
-import { getModel } from "./gemini";
+import { ai, AI_MODEL } from "./gemini";
 import type { QuizQuestion } from "@shared/schema";
 
 interface LeveledContent {
@@ -30,8 +30,6 @@ export async function generateReadingLevels(
   originalText: string,
   title: string
 ): Promise<LeveledContent[]> {
-  const model = getModel("application/json");
-  
   const prompt = `You are an educational content specialist for Malaysian students (Year 5 and above, ages 11+).
 
 Transform the following article into 5 different reading levels suitable for Malaysian students following KSSM/KSSR curriculum. This is for creating adaptive dynamic textbooks.
@@ -85,11 +83,15 @@ Important:
 - Each level should be 3-5 paragraphs
 - Ensure content is engaging and educational`;
 
-  const result = await model.generateContent({
-    contents: [{ role: "user", parts: [{ text: prompt }] }],
+  const response = await ai.models.generateContent({
+    model: AI_MODEL,
+    contents: prompt,
+    config: {
+      responseMimeType: "application/json",
+    }
   });
   
-  const responseText = await result.response.text();
+  const responseText = response.text;
   
   if (!responseText) {
     throw new Error("AI failed to generate reading levels");
@@ -108,8 +110,6 @@ export async function generateQuiz(
   articleContent: string,
   title: string
 ): Promise<QuizQuestion[]> {
-  const model = getModel("application/json");
-  
   const prompt = `Create 5 comprehension questions for this textbook content suitable for Malaysian Year 5+ students.
 
 Title: ${title}
@@ -155,11 +155,15 @@ Guidelines:
 - Ensure only one clearly correct answer per question
 - correctAnswer is the index (0-3) of the correct option`;
 
-  const result = await model.generateContent({
-    contents: [{ role: "user", parts: [{ text: prompt }] }],
+  const response = await ai.models.generateContent({
+    model: AI_MODEL,
+    contents: prompt,
+    config: {
+      responseMimeType: "application/json",
+    }
   });
   
-  const responseText = await result.response.text();
+  const responseText = response.text;
   
   if (!responseText) {
     throw new Error("AI failed to generate quiz");
@@ -178,8 +182,6 @@ export async function generateWritePrompts(
   articleContent: string,
   title: string
 ): Promise<string[]> {
-  const model = getModel("application/json");
-  
   const prompt = `Create 3 writing prompts based on this textbook content for Malaysian Year 5+ students.
 
 Title: ${title}
@@ -203,11 +205,15 @@ Guidelines:
 - Encourage evidence-based reasoning from the text
 - Make prompts culturally relevant to Malaysian students`;
 
-  const result = await model.generateContent({
-    contents: [{ role: "user", parts: [{ text: prompt }] }],
+  const response = await ai.models.generateContent({
+    model: AI_MODEL,
+    contents: prompt,
+    config: {
+      responseMimeType: "application/json",
+    }
   });
   
-  const responseText = await result.response.text();
+  const responseText = response.text;
   
   if (!responseText) {
     throw new Error("AI failed to generate write prompts");
@@ -223,8 +229,6 @@ Guidelines:
 }
 
 export async function extractTitleAndTopic(text: string): Promise<{ title: string; topic: string }> {
-  const model = getModel("application/json");
-  
   const prompt = `Analyze this text and extract a clear title and categorize it into one topic.
 
 Text:
@@ -236,11 +240,15 @@ Return a JSON object with this exact structure:
   "topic": "Single category: Pendidikan, Teknologi, Alam Sekitar, Sukan, Kebudayaan, Sains, Kesihatan, or Umum"
 }`;
 
-  const result = await model.generateContent({
-    contents: [{ role: "user", parts: [{ text: prompt }] }],
+  const response = await ai.models.generateContent({
+    model: AI_MODEL,
+    contents: prompt,
+    config: {
+      responseMimeType: "application/json",
+    }
   });
   
-  const responseText = await result.response.text();
+  const responseText = response.text;
   
   if (!responseText) {
     throw new Error("AI failed to extract title and topic");

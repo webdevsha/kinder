@@ -12,16 +12,20 @@ import { z } from "zod";
 
 // Request validation schema
 const processRequestSchema = z.object({
-  text: z.string().trim().min(100, "Text must be at least 100 characters"),
-  url: z.string().url().optional().nullable(),
+  text: z.string().trim().min(100, "Text must be at least 100 characters").optional(),
+  url: z.string().url().optional(),
 }).refine((data) => {
-  // Only accept text, not URL (URL ingestion not implemented)
+  // Must have either text or URL
+  if (!data.text && !data.url) {
+    return false;
+  }
+  // URL ingestion not implemented yet
   if (data.url && !data.text) {
     return false;
   }
-  return true;
+  return !!data.text; // For now, only text is supported
 }, {
-  message: "URL ingestion not supported. Please paste the text content directly."
+  message: "Please provide text content (minimum 100 characters). URL ingestion coming soon."
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
