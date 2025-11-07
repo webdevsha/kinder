@@ -20,11 +20,8 @@ export default function TextInput() {
 
   const processArticle = useMutation({
     mutationFn: async (data: { text?: string; url?: string }) => {
-      return await apiRequest("/api/articles/process", {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: { "Content-Type": "application/json" }
-      });
+      const response = await apiRequest("POST", "/api/articles/process", data);
+      return await response.json();
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/articles"] });
