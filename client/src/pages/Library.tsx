@@ -18,7 +18,7 @@ export default function Library() {
   });
 
   const articles = articlesData.map(article => ({
-    id: article.id,
+    id: String(article.id),
     title: article.title,
     excerpt: article.originalText.substring(0, 150) + "...",
     level: 3,
@@ -26,67 +26,8 @@ export default function Library() {
     date: format(new Date(article.createdAt), "d MMM yyyy"),
     wordCount: article.wordCount
   }));
-
-  const mockArticles = [
-    {
-      id: "1",
-      title: "Penemuan Baharu di Perpustakaan Sekolah",
-      excerpt: "Pelajar-pelajar sekolah rendah mendapati buku-buku lama yang menarik di perpustakaan sekolah mereka...",
-      level: 3,
-      topic: "Pendidikan",
-      date: "5 Nov 2025",
-      wordCount: 450
-    },
-    {
-      id: "2",
-      title: "Teknologi Baharu untuk Pembelajaran",
-      excerpt: "Sekolah-sekolah di Malaysia mula menggunakan tablet dan aplikasi untuk membantu pelajar belajar dengan lebih baik...",
-      level: 4,
-      topic: "Teknologi",
-      date: "3 Nov 2025",
-      wordCount: 520
-    },
-    {
-      id: "3",
-      title: "Kempen Kitar Semula di Sekolah",
-      excerpt: "Pelajar Tahun 5 memulakan projek kitar semula untuk menjaga alam sekitar...",
-      level: 2,
-      topic: "Alam Sekitar",
-      date: "1 Nov 2025",
-      wordCount: 380
-    },
-    {
-      id: "4",
-      title: "Sukan dan Kesihatan Pelajar",
-      excerpt: "Program sukan baru di sekolah membantu pelajar menjadi lebih sihat dan aktif...",
-      level: 3,
-      topic: "Sukan",
-      date: "30 Okt 2025",
-      wordCount: 415
-    },
-    {
-      id: "5",
-      title: "Kebudayaan Malaysia yang Kaya",
-      excerpt: "Pelajar belajar tentang pelbagai budaya dan tradisi di Malaysia melalui festival sekolah...",
-      level: 4,
-      topic: "Kebudayaan",
-      date: "28 Okt 2025",
-      wordCount: 485
-    },
-    {
-      id: "6",
-      title: "Sains dalam Kehidupan Harian",
-      excerpt: "Eksperimen sains yang mudah menunjukkan bagaimana sains wujud di sekeliling kita...",
-      level: 2,
-      topic: "Sains",
-      date: "25 Okt 2025",
-      wordCount: 360
-    }
-  ];
-
-  const allArticles = articles.length > 0 ? articles : mockArticles;
   
-  const filteredArticles = allArticles.filter((article) =>
+  const filteredArticles = articles.filter((article) =>
     article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     article.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
     article.topic.toLowerCase().includes(searchQuery.toLowerCase())
@@ -139,16 +80,37 @@ export default function Library() {
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
+        ) : filteredArticles.length === 0 ? (
+          <div className="col-span-3 flex flex-col items-center justify-center py-16 text-center">
+            <div className="mb-4 rounded-full bg-primary/10 p-6">
+              <BookText className="h-12 w-12 text-primary" />
+            </div>
+            <h3 className="mb-2 text-xl font-semibold">
+              {searchQuery ? "Tiada kandungan ditemui" : "Tiada kandungan lagi"}
+            </h3>
+            <p className="mb-6 text-muted-foreground max-w-md">
+              {searchQuery 
+                ? "Cuba cari dengan kata kunci yang berbeza" 
+                : "Mulakan dengan menambah kandungan pertama anda. Klik butang 'Tambah Kandungan' untuk bermula."
+              }
+            </p>
+            {!searchQuery && !showInput && (
+              <Button
+                onClick={() => setShowInput(true)}
+                className="gap-2"
+                size="lg"
+                data-testid="button-add-first-article"
+              >
+                <Plus className="h-4 w-4" />
+                Tambah Kandungan Pertama
+              </Button>
+            )}
+          </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredArticles.map((article) => (
               <ArticleCard key={article.id} {...article} />
             ))}
-            {filteredArticles.length === 0 && (
-              <div className="col-span-3 py-12 text-center text-muted-foreground">
-                {searchQuery ? "Tiada kandungan ditemui" : "Tiada kandungan lagi. Tambah yang pertama!"}
-              </div>
-            )}
           </div>
         )}
       </main>
