@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, BookText } from "lucide-react";
+import { useLocation } from "wouter";
 
 interface ArticleCardProps {
   id: string;
@@ -21,11 +22,13 @@ export default function ArticleCard({
   date, 
   wordCount 
 }: ArticleCardProps) {
+  const [, setLocation] = useLocation();
+
   return (
     <Card 
       className="hover-elevate active-elevate-2 cursor-pointer overflow-hidden"
       data-testid={`card-article-${id}`}
-      onClick={() => console.log(`Article ${id} clicked`)}
+      onClick={() => setLocation(`/article/${id}`)}
     >
       <CardHeader className="pb-3">
         <div className="mb-2 flex items-center gap-2">
