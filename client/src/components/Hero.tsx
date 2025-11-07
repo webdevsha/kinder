@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { useLocation } from "wouter";
 import heroImage from "@assets/generated_images/Students_collaboration_illustration_a9246780.png";
 
 export default function Hero() {
+  const [, setLocation] = useLocation();
+
   return (
     <section className="relative h-96 w-full overflow-hidden">
       <div className="absolute inset-0">
@@ -28,6 +31,7 @@ export default function Hero() {
                 variant="default" 
                 size="lg" 
                 className="gap-2"
+                onClick={() => setLocation("/library")}
                 data-testid="button-start"
               >
                 Mula Sekarang
