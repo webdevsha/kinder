@@ -61,6 +61,30 @@ Guru-guru juga mendapati teknologi membantu mereka mengenal pasti pelajar yang m
       topic: "Teknologi",
       sourceUrl: null,
       wordCount: 142,
+      crossCurricularConnections: [
+        {
+          subject: "Sains",
+          topic: "Teknologi Maklumat dan Komunikasi",
+          syllabusReference: "KSSM Sains Tahun 5: Unit 7.2",
+          description: "Penggunaan teknologi digital dalam pembelajaran berkaitan dengan konsep peranti teknologi dan aplikasi dalam kehidupan seharian.",
+          curriculum: "KSSM"
+        },
+        {
+          subject: "Matematik",
+          topic: "Data dan Statistik",
+          syllabusReference: "KSSR Matematik Tahun 5: Modul 8.1",
+          description: "Analisis data pembelajaran yang digunakan oleh guru melibatkan konsep pengumpulan, pemprosesan dan interpretasi data statistik.",
+          curriculum: "KSSR"
+        },
+        {
+          subject: "Pendidikan Sivik dan Kewarganegaraan",
+          topic: "Tanggungjawab Warganegara Digital",
+          syllabusReference: "KSSM PSV Tahun 5: Tema 4.3",
+          description: "Penggunaan teknologi yang bertanggungjawab dan seimbang dalam konteks pembelajaran dan kehidupan.",
+          curriculum: "KSSM"
+        }
+      ],
+      availableLanguages: ["Bahasa Malaysia", "English", "中文", "தமிழ்"],
       createdAt: new Date("2025-11-06T10:00:00")
     };
     this.articles.set(article1.id, article1);
@@ -181,6 +205,23 @@ Pelajar juga mengajar adik-adik mereka cara mengasingkan sampah dengan betul. Me
       topic: "Alam Sekitar",
       sourceUrl: null,
       wordCount: 168,
+      crossCurricularConnections: [
+        {
+          subject: "Sains",
+          topic: "Alam Sekitar dan Kitar Semula",
+          syllabusReference: "KSSR Sains Tahun 5: Unit 5.3",
+          description: "Konsep kitar semula dan kepentingan menjaga alam sekitar melalui amalan 3R (Reduce, Reuse, Recycle).",
+          curriculum: "KSSR"
+        },
+        {
+          subject: "Matematik",
+          topic: "Pengurusan Data dan Graf",
+          syllabusReference: "KSSR Matematik Tahun 5: Unit 6.2",
+          description: "Mengukur dan merekod berat bahan kitar semula (50kg, 200kg) serta membuat perbandingan data mingguan.",
+          curriculum: "KSSR"
+        }
+      ],
+      availableLanguages: ["Bahasa Malaysia", "English"],
       createdAt: new Date("2025-11-05T14:30:00")
     };
     this.articles.set(article2.id, article2);
@@ -206,6 +247,8 @@ Pelajar juga mengajar adik-adik mereka cara mengasingkan sampah dengan betul. Me
       topic: insertArticle.topic ?? null,
       sourceUrl: insertArticle.sourceUrl ?? null,
       wordCount: insertArticle.wordCount,
+      crossCurricularConnections: insertArticle.crossCurricularConnections ?? null,
+      availableLanguages: insertArticle.availableLanguages ?? null,
       createdAt: new Date()
     };
     this.articles.set(id, article);

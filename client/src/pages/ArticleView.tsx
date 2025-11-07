@@ -3,6 +3,7 @@ import ArticleReader from "@/components/ArticleReader";
 import LevelSwitcher from "@/components/LevelSwitcher";
 import QuizQuestion from "@/components/QuizQuestion";
 import WritePrompt from "@/components/WritePrompt";
+import CrossCurricularSidebar from "@/components/CrossCurricularSidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -16,6 +17,7 @@ export default function ArticleView() {
   const [, params] = useRoute("/article/:id");
   const articleId = params?.id;
   const [currentLevel, setCurrentLevel] = useState(3);
+  const [currentLanguage, setCurrentLanguage] = useState("Bahasa Malaysia");
 
   const { data: article, isLoading: articleLoading } = useQuery<Article>({
     queryKey: ["/api/articles", articleId],
@@ -89,23 +91,26 @@ export default function ArticleView() {
         </div>
       </div>
 
-      <main className="mx-auto w-full px-4 py-8 md:px-6">
-        <Tabs defaultValue="article" className="w-full">
-          <div className="sticky top-16 z-40 border-b bg-background pb-4">
-            <div className="mx-auto max-w-reading">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="article" data-testid="tab-article">
-                  Kandungan
-                </TabsTrigger>
-                <TabsTrigger value="quiz" data-testid="tab-quiz">
-                  Kuiz
-                </TabsTrigger>
-                <TabsTrigger value="write" data-testid="tab-write">
-                  Tulis
-                </TabsTrigger>
-              </TabsList>
-            </div>
-          </div>
+      <main className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6">
+        <div className="flex flex-col gap-8 lg:flex-row">
+          {/* Main Content */}
+          <div className="flex-1">
+            <Tabs defaultValue="article" className="w-full">
+              <div className="sticky top-16 z-40 border-b bg-background pb-4">
+                <div className="mx-auto max-w-reading">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="article" data-testid="tab-article">
+                      Kandungan
+                    </TabsTrigger>
+                    <TabsTrigger value="quiz" data-testid="tab-quiz">
+                      Kuiz
+                    </TabsTrigger>
+                    <TabsTrigger value="write" data-testid="tab-write">
+                      Tulis
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+              </div>
 
           <TabsContent value="article" className="mt-0">
             {currentLevelData ? (
@@ -176,8 +181,22 @@ export default function ArticleView() {
                 </div>
               )}
             </div>
-          </TabsContent>
-        </Tabs>
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          {/* Right Sidebar */}
+          <aside className="lg:w-80 lg:flex-shrink-0">
+            <div className="lg:sticky lg:top-24">
+              <CrossCurricularSidebar
+                connections={article.crossCurricularConnections || []}
+                availableLanguages={article.availableLanguages || ["Bahasa Malaysia", "English", "中文", "தமிழ்"]}
+                currentLanguage={currentLanguage}
+                onLanguageChange={setCurrentLanguage}
+              />
+            </div>
+          </aside>
+        </div>
       </main>
     </div>
   );

@@ -16,6 +16,8 @@ export const articles = pgTable("articles", {
   topic: text("topic"),
   sourceUrl: text("source_url"),
   wordCount: integer("word_count").notNull(),
+  crossCurricularConnections: jsonb("cross_curricular_connections").$type<CrossCurricularConnection[]>(),
+  availableLanguages: jsonb("available_languages").$type<string[]>(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -43,6 +45,14 @@ export interface QuizQuestion {
   question: string;
   options: string[];
   correctAnswer: number;
+}
+
+export interface CrossCurricularConnection {
+  subject: string;
+  topic: string;
+  syllabusReference: string;
+  description: string;
+  curriculum: "KSSM" | "KSSR";
 }
 
 export const insertUserSchema = createInsertSchema(users).omit({ id: true });
