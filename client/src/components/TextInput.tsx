@@ -4,19 +4,52 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sparkles, Link2 } from "lucide-react";
+import { Sparkles, Link2, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 
 export default function TextInput() {
   const [text, setText] = useState("");
   const [url, setUrl] = useState("");
   const [activeTab, setActiveTab] = useState("paste");
+  const { toast } = useToast();
+  const [, setLocation] = useLocation();
+
+  const processArticle = useMutation({
+    mutationFn: async (data: { text?: string; url?: string }) => {
+      return await apiRequest("/api/articles/process", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" }
+      });
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/articles"] });
+      toast({
+        title: "Berjaya!",
+        description: "Kandungan telah diproses dan disimpan"
+      });
+      setText("");
+      setUrl("");
+      setLocation(`/article/${data.articleId}`);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Ralat",
+        description: error.message || "Gagal memproses kandungan",
+        variant: "destructive"
+      });
+    }
+  });
 
   const handleProcess = () => {
     if (activeTab === "paste" && text) {
-      console.log('Processing pasted text:', text.substring(0, 50) + '...');
+      processArticle.mutate({ text });
     } else if (activeTab === "url" && url) {
-      console.log('Processing URL:', url);
+      processArticle.mutate({ url });
     }
   };
 
@@ -92,13 +125,22 @@ export default function TextInput() {
         <div className="mt-6">
           <Button
             onClick={handleProcess}
-            disabled={(activeTab === "paste" && !text) || (activeTab === "url" && !url)}
+            disabled={(activeTab === "paste" && !text) || (activeTab === "url" && !url) || processArticle.isPending}
             className="w-full gap-2"
             size="lg"
             data-testid="button-process-article"
           >
-            <Sparkles className="h-4 w-4" />
-            Proses Kandungan
+            {processArticle.isPending ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Memproses...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4" />
+                Proses Kandungan
+              </>
+            )}
           </Button>
         </div>
       </CardContent>

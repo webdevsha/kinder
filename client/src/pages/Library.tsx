@@ -3,14 +3,31 @@ import ArticleCard from "@/components/ArticleCard";
 import TextInput from "@/components/TextInput";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import type { Article } from "@shared/schema";
+import { format } from "date-fns";
 
 export default function Library() {
   const [showInput, setShowInput] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const articles = [
+  const { data: articlesData = [], isLoading } = useQuery<Article[]>({
+    queryKey: ["/api/articles"],
+  });
+
+  const articles = articlesData.map(article => ({
+    id: article.id,
+    title: article.title,
+    excerpt: article.originalText.substring(0, 150) + "...",
+    level: 3,
+    topic: article.topic || "Umum",
+    date: format(new Date(article.createdAt), "d MMM yyyy"),
+    wordCount: article.wordCount
+  }));
+
+  const mockArticles = [
     {
       id: "1",
       title: "Penemuan Baharu di Perpustakaan Sekolah",
@@ -67,6 +84,14 @@ export default function Library() {
     }
   ];
 
+  const allArticles = articles.length > 0 ? articles : mockArticles;
+  
+  const filteredArticles = allArticles.filter((article) =>
+    article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    article.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    article.topic.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -110,11 +135,22 @@ export default function Library() {
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {articles.map((article) => (
-            <ArticleCard key={article.id} {...article} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {filteredArticles.map((article) => (
+              <ArticleCard key={article.id} {...article} />
+            ))}
+            {filteredArticles.length === 0 && (
+              <div className="col-span-3 py-12 text-center text-muted-foreground">
+                {searchQuery ? "Tiada kandungan ditemui" : "Tiada kandungan lagi. Tambah yang pertama!"}
+              </div>
+            )}
+          </div>
+        )}
       </main>
     </div>
   );

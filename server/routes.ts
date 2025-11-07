@@ -10,19 +10,36 @@ import {
 import { insertArticleSchema } from "@shared/schema";
 import { z } from "zod";
 
+// Request validation schema
+const processRequestSchema = z.object({
+  text: z.string().trim().min(100, "Text must be at least 100 characters"),
+  url: z.string().url().optional().nullable(),
+}).refine((data) => {
+  // Only accept text, not URL (URL ingestion not implemented)
+  if (data.url && !data.text) {
+    return false;
+  }
+  return true;
+}, {
+  message: "URL ingestion not supported. Please paste the text content directly."
+});
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Process article/content
   app.post("/api/articles/process", async (req, res) => {
     try {
-      const { text, url } = req.body;
+      // Validate request
+      const validation = processRequestSchema.safeParse(req.body);
       
-      if (!text && !url) {
-        return res.status(400).json({ error: "Text or URL required" });
+      if (!validation.success) {
+        return res.status(400).json({ 
+          error: "Invalid request",
+          details: validation.error.errors[0].message
+        });
       }
 
-      // For now, we'll just use the text directly
-      // In the future, we could add URL fetching
-      const content = text || "Sample content from URL";
+      const { text, url } = validation.data;
+      const content = text;
       
       // Extract title and topic
       const { title, topic } = await extractTitleAndTopic(content);
@@ -79,9 +96,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error: any) {
       console.error("Error processing article:", error);
+      
+      // Return 502 for AI service failures
+      if (error.message?.includes("AI") || 
+          error.message?.includes("generate") ||
+          error.message?.includes("invalid response") ||
+          error.message?.includes("invalid")) {
+        return res.status(502).json({ 
+          error: "AI service error",
+          message: "The AI service encountered an error. Please try again."
+        });
+      }
+      
       res.status(500).json({ 
         error: "Failed to process content",
-        message: error.message 
+        message: error.message || "An unexpected error occurred"
       });
     }
   });

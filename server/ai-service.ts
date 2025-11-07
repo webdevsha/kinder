@@ -1,4 +1,4 @@
-import { genAI, AI_MODEL } from "./gemini";
+import { getModel } from "./gemini";
 import type { QuizQuestion } from "@shared/schema";
 
 interface LeveledContent {
@@ -7,10 +7,31 @@ interface LeveledContent {
   byline: string;
 }
 
+// Helper to clean and parse Gemini JSON responses (removes markdown wrappers)
+function parseGeminiJSON(responseText: string): any {
+  let cleanedText = responseText.trim();
+  
+  // Remove markdown code blocks if present
+  if (cleanedText.startsWith("```json")) {
+    cleanedText = cleanedText.replace(/^```json\s*\n/, "").replace(/\n```\s*$/, "");
+  } else if (cleanedText.startsWith("```")) {
+    cleanedText = cleanedText.replace(/^```\s*\n/, "").replace(/\n```\s*$/, "");
+  }
+  
+  try {
+    return JSON.parse(cleanedText);
+  } catch (error) {
+    console.error("Failed to parse Gemini response:", cleanedText);
+    throw new Error("AI returned invalid response format");
+  }
+}
+
 export async function generateReadingLevels(
   originalText: string,
   title: string
 ): Promise<LeveledContent[]> {
+  const model = getModel("application/json");
+  
   const prompt = `You are an educational content specialist for Malaysian students (Year 5 and above, ages 11+).
 
 Transform the following article into 5 different reading levels suitable for Malaysian students following KSSM/KSSR curriculum. This is for creating adaptive dynamic textbooks.
@@ -64,19 +85,22 @@ Important:
 - Each level should be 3-5 paragraphs
 - Ensure content is engaging and educational`;
 
-  const result = await genAI.models.generateContent({
-    model: AI_MODEL,
-    config: {
-      responseMimeType: "application/json",
-    },
-    contents: prompt,
+  const result = await model.generateContent({
+    contents: [{ role: "user", parts: [{ text: prompt }] }],
   });
   
-  if (!result.text) {
-    throw new Error("Failed to generate reading levels");
+  const responseText = await result.response.text();
+  
+  if (!responseText) {
+    throw new Error("AI failed to generate reading levels");
   }
   
-  const parsed = JSON.parse(result.text);
+  const parsed = parseGeminiJSON(responseText);
+  
+  if (!parsed.levels || !Array.isArray(parsed.levels)) {
+    throw new Error("AI returned invalid reading levels format");
+  }
+  
   return parsed.levels;
 }
 
@@ -84,6 +108,8 @@ export async function generateQuiz(
   articleContent: string,
   title: string
 ): Promise<QuizQuestion[]> {
+  const model = getModel("application/json");
+  
   const prompt = `Create 5 comprehension questions for this textbook content suitable for Malaysian Year 5+ students.
 
 Title: ${title}
@@ -129,19 +155,22 @@ Guidelines:
 - Ensure only one clearly correct answer per question
 - correctAnswer is the index (0-3) of the correct option`;
 
-  const result = await genAI.models.generateContent({
-    model: AI_MODEL,
-    config: {
-      responseMimeType: "application/json",
-    },
-    contents: prompt,
+  const result = await model.generateContent({
+    contents: [{ role: "user", parts: [{ text: prompt }] }],
   });
   
-  if (!result.text) {
-    throw new Error("Failed to generate quiz");
+  const responseText = await result.response.text();
+  
+  if (!responseText) {
+    throw new Error("AI failed to generate quiz");
   }
   
-  const parsed = JSON.parse(result.text);
+  const parsed = parseGeminiJSON(responseText);
+  
+  if (!parsed.questions || !Array.isArray(parsed.questions)) {
+    throw new Error("AI returned invalid quiz format");
+  }
+  
   return parsed.questions;
 }
 
@@ -149,6 +178,8 @@ export async function generateWritePrompts(
   articleContent: string,
   title: string
 ): Promise<string[]> {
+  const model = getModel("application/json");
+  
   const prompt = `Create 3 writing prompts based on this textbook content for Malaysian Year 5+ students.
 
 Title: ${title}
@@ -172,23 +203,28 @@ Guidelines:
 - Encourage evidence-based reasoning from the text
 - Make prompts culturally relevant to Malaysian students`;
 
-  const result = await genAI.models.generateContent({
-    model: AI_MODEL,
-    config: {
-      responseMimeType: "application/json",
-    },
-    contents: prompt,
+  const result = await model.generateContent({
+    contents: [{ role: "user", parts: [{ text: prompt }] }],
   });
   
-  if (!result.text) {
-    throw new Error("Failed to generate write prompts");
+  const responseText = await result.response.text();
+  
+  if (!responseText) {
+    throw new Error("AI failed to generate write prompts");
   }
   
-  const parsed = JSON.parse(result.text);
+  const parsed = parseGeminiJSON(responseText);
+  
+  if (!parsed.prompts || !Array.isArray(parsed.prompts)) {
+    throw new Error("AI returned invalid prompts format");
+  }
+  
   return parsed.prompts;
 }
 
 export async function extractTitleAndTopic(text: string): Promise<{ title: string; topic: string }> {
+  const model = getModel("application/json");
+  
   const prompt = `Analyze this text and extract a clear title and categorize it into one topic.
 
 Text:
@@ -200,17 +236,21 @@ Return a JSON object with this exact structure:
   "topic": "Single category: Pendidikan, Teknologi, Alam Sekitar, Sukan, Kebudayaan, Sains, Kesihatan, or Umum"
 }`;
 
-  const result = await genAI.models.generateContent({
-    model: AI_MODEL,
-    config: {
-      responseMimeType: "application/json",
-    },
-    contents: prompt,
+  const result = await model.generateContent({
+    contents: [{ role: "user", parts: [{ text: prompt }] }],
   });
   
-  if (!result.text) {
-    throw new Error("Failed to extract title and topic");
+  const responseText = await result.response.text();
+  
+  if (!responseText) {
+    throw new Error("AI failed to extract title and topic");
   }
   
-  return JSON.parse(result.text);
+  const parsed = parseGeminiJSON(responseText);
+  
+  if (!parsed.title || !parsed.topic) {
+    throw new Error("AI returned invalid title/topic format");
+  }
+  
+  return parsed;
 }
