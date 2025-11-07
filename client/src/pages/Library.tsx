@@ -3,7 +3,7 @@ import ArticleCard from "@/components/ArticleCard";
 import TextInput from "@/components/TextInput";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, Loader2 } from "lucide-react";
+import { Search, Plus, Loader2, BookText } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { Article } from "@shared/schema";
