@@ -8,7 +8,10 @@ import type {
   WritePrompt, 
   InsertWritePrompt 
 } from "@shared/schema";
+import { articles, readingLevels, quizzes, writePrompts } from "@shared/schema";
 import { randomUUID } from "crypto";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   // Article operations
@@ -326,4 +329,84 @@ Pelajar juga mengajar adik-adik mereka cara mengasingkan sampah dengan betul. Me
   }
 }
 
-export const storage = new MemStorage();
+export class DatabaseStorage implements IStorage {
+  async createArticle(insertArticle: InsertArticle): Promise<Article> {
+    const [article] = await db
+      .insert(articles)
+      .values({
+        ...insertArticle,
+        crossCurricularConnections: insertArticle.crossCurricularConnections as any,
+        availableLanguages: insertArticle.availableLanguages as any
+      })
+      .returning();
+    return article;
+  }
+
+  async getArticle(id: string): Promise<Article | undefined> {
+    const [article] = await db.select().from(articles).where(eq(articles.id, id));
+    return article;
+  }
+
+  async getAllArticles(): Promise<Article[]> {
+    return await db.select().from(articles).orderBy(articles.createdAt);
+  }
+
+  async createReadingLevel(insertLevel: InsertReadingLevel): Promise<ReadingLevel> {
+    const [level] = await db.insert(readingLevels).values(insertLevel).returning();
+    return level;
+  }
+
+  async getReadingLevelsByArticle(articleId: string): Promise<ReadingLevel[]> {
+    return await db
+      .select()
+      .from(readingLevels)
+      .where(eq(readingLevels.articleId, articleId))
+      .orderBy(readingLevels.level);
+  }
+
+  async getReadingLevel(articleId: string, level: number): Promise<ReadingLevel | undefined> {
+    const [readingLevel] = await db
+      .select()
+      .from(readingLevels)
+      .where(eq(readingLevels.articleId, articleId));
+    // Note: Drizzle's eq doesn't support multiple conditions easily in one where without `and`, 
+    // but since we pull by articleId, we can filter in memory or use proper and() if imported.
+    // For simplicity, let's filter the array since there are only ~5 levels.
+    const levels = await this.getReadingLevelsByArticle(articleId);
+    return levels.find(l => l.level === level);
+  }
+
+  async createQuiz(insertQuiz: InsertQuiz): Promise<Quiz> {
+    const [quiz] = await db
+      .insert(quizzes)
+      .values({
+        ...insertQuiz,
+        questions: insertQuiz.questions as any
+      })
+      .returning();
+    return quiz;
+  }
+
+  async getQuizByArticle(articleId: string): Promise<Quiz | undefined> {
+    const [quiz] = await db.select().from(quizzes).where(eq(quizzes.articleId, articleId));
+    return quiz;
+  }
+
+  async createWritePrompts(insertPrompts: InsertWritePrompt): Promise<WritePrompt> {
+    const [prompts] = await db
+      .insert(writePrompts)
+      .values({
+        ...insertPrompts,
+        prompts: insertPrompts.prompts as any
+      })
+      .returning();
+    return prompts;
+  }
+
+  async getWritePromptsByArticle(articleId: string): Promise<WritePrompt | undefined> {
+    const [prompts] = await db.select().from(writePrompts).where(eq(writePrompts.articleId, articleId));
+    return prompts;
+  }
+}
+
+export const storage = process.env.DATABASE_URL ? new DatabaseStorage() : new MemStorage();
