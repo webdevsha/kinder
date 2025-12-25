@@ -3,24 +3,24 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
 
 // Debug log to see what's available
-const hasDbUrl = !!process.env.DATABASE_URL;
-const hasSupabaseUrl = !!process.env.SUPABASE_DB_URL;
-
-console.log(`[db] Environment check - DATABASE_URL present: ${hasDbUrl}, SUPABASE_DB_URL present: ${hasSupabaseUrl}`);
-
-// Support both standard DATABASE_URL and SUPABASE_DB_URL
 const databaseUrl = process.env.DATABASE_URL || process.env.SUPABASE_DB_URL;
 
 if (!databaseUrl) {
-  console.warn("[db] WARNING: DATABASE_URL (or SUPABASE_DB_URL) not set. Falling back to memory storage.");
+  console.warn("[db] WARNING: DATABASE_URL (or SUPABASE_DB_URL) not set. Storage will likely fall back to memory.");
 } else {
-  console.log("[db] Connecting to database...");
+  // Log masked URL for debugging
+  const maskedUrl = databaseUrl.replace(/:[^:@]*@/, ':****@');
+  console.log(`[db] Connecting to database at ${maskedUrl}`);
 }
 
 // Use standard pg Pool for Supabase compatibility
+// We create the pool even if URL is empty, but queries will fail if used.
+// This allows the app to start up and check env vars later.
 export const pool = new Pool({ 
   connectionString: databaseUrl || "",
-  ssl: databaseUrl ? { rejectUnauthorized: false } : undefined // Fix for self-signed certs or specific Supabase configs
+  ssl: databaseUrl ? { rejectUnauthorized: false } : undefined,
+  max: 10, // Limit pool size for serverless
+  idleTimeoutMillis: 30000
 });
 
 export const db = drizzle(pool, { schema });
