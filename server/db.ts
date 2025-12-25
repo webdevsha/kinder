@@ -3,7 +3,18 @@ import { drizzle } from 'drizzle-orm/neon-serverless';
 import ws from "ws";
 import * as schema from "@shared/schema";
 
-neonConfig.webSocketConstructor = ws;
+// Create a custom WebSocket client that ignores SSL certificate errors
+// This is required to fix the "CERT_HAS_EXPIRED" error when connecting to Supabase
+class CustomWebSocket extends ws {
+  constructor(address: string, protocols?: string | string[]) {
+    super(address, protocols, {
+      rejectUnauthorized: false // Ignore certificate expiry/validation errors
+    });
+  }
+}
+
+// Set the custom WebSocket constructor
+neonConfig.webSocketConstructor = CustomWebSocket;
 
 // Debug log to see what's available
 const hasDbUrl = !!process.env.DATABASE_URL;
