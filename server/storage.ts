@@ -247,8 +247,9 @@ Pelajar juga mengajar adik-adik mereka cara mengasingkan sampah dengan betul. Me
       topic: insertArticle.topic ?? null,
       sourceUrl: insertArticle.sourceUrl ?? null,
       wordCount: insertArticle.wordCount,
-      crossCurricularConnections: insertArticle.crossCurricularConnections ?? null,
-      availableLanguages: insertArticle.availableLanguages ?? null,
+      // Cast as any because Zod/Drizzle inferred types for JSONB are not strictly compatible with the TS interface
+      crossCurricularConnections: (insertArticle.crossCurricularConnections as any) ?? null,
+      availableLanguages: (insertArticle.availableLanguages as any) ?? null,
       createdAt: new Date()
     };
     this.articles.set(id, article);

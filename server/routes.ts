@@ -43,6 +43,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { text, url } = validation.data;
+      
+      // Ensure text is present (refine check handles this logic but TS needs explicit check)
+      if (!text) {
+        return res.status(400).json({ error: "Text content is required" });
+      }
+
       const content = text;
       
       // Extract title and topic
