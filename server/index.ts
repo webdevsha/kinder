@@ -71,8 +71,8 @@ app.use((req, res, next) => {
   const PORT = parseInt(process.env.PORT || '5000', 10);
   
   server.listen(PORT, () => {
-    log(`🚀 Aplikasi sedang berjalan di port ${PORT}`);
-  });
+  log(`🚀 Aplikasi sedang berjalan di port ${PORT}`);
+});
 
   // Graceful shutdown
   process.on('SIGTERM', () => {
