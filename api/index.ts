@@ -1,5 +1,4 @@
 import { registerRoutes } from "../server/routes";
-import { seedDatabase } from "../server/seed";
 import express from "express";
 
 const app = express();
@@ -15,13 +14,6 @@ async function setup() {
   
   console.log("Initializing API handler...");
   try {
-    // Attempt to seed, but don't fail the whole app if it fails (e.g. DB connection issues)
-    try {
-      await seedDatabase();
-    } catch (e) {
-      console.error("Seeding failed, but continuing:", e);
-    }
-    
     // Register routes
     await registerRoutes(app);
     console.log("Routes registered successfully");
