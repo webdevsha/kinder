@@ -1,20 +1,6 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from "ws";
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
-
-// Create a custom WebSocket client that ignores SSL certificate errors
-// This is required to fix the "CERT_HAS_EXPIRED" error when connecting to Supabase
-class CustomWebSocket extends ws {
-  constructor(address: string, protocols?: string | string[]) {
-    super(address, protocols, {
-      rejectUnauthorized: false // Ignore certificate expiry/validation errors
-    });
-  }
-}
-
-// Set the custom WebSocket constructor
-neonConfig.webSocketConstructor = CustomWebSocket;
 
 // Debug log to see what's available
 const hasDbUrl = !!process.env.DATABASE_URL;
@@ -31,5 +17,10 @@ if (!databaseUrl) {
   console.log("[db] Connecting to database...");
 }
 
-export const pool = new Pool({ connectionString: databaseUrl || "" });
+// Use standard pg Pool for Supabase compatibility
+export const pool = new Pool({ 
+  connectionString: databaseUrl || "",
+  ssl: databaseUrl ? { rejectUnauthorized: false } : undefined // Fix for self-signed certs or specific Supabase configs
+});
+
 export const db = drizzle(pool, { schema });
