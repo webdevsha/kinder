@@ -29,9 +29,6 @@ const processRequestSchema = z.object({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Initialize storage (seeds DB if empty)
-  await storage.init();
-
   // Process article/content
   app.post("/api/articles/process", async (req, res) => {
     try {
