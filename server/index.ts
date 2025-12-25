@@ -67,12 +67,11 @@ app.use((req, res, next) => {
   }
 
   // Menggunakan port dari environment variable (Dyad/Cloud)
-  // atau 5000 sebagai fallback (Local) - Note: kept 5000 to match existing config
+  // atau 5000 sebagai fallback (Local)
   const PORT = parseInt(process.env.PORT || '5000', 10);
   
-  server.listen(PORT, "0.0.0.0", () => {
-    log(`🚀 Aplikasi sedang berjalan di: http://0.0.0.0:${PORT}`);
-    log(`💡 Jika di Dyad, pastikan port ini di-forward atau dibuka.`);
+  server.listen(PORT, () => {
+    log(`🚀 Aplikasi sedang berjalan di port ${PORT}`);
   });
 
   // Graceful shutdown
