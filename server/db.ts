@@ -5,9 +5,12 @@ import * as schema from "@shared/schema";
 
 neonConfig.webSocketConstructor = ws;
 
-if (!process.env.DATABASE_URL) {
-  console.warn("DATABASE_URL not set. Falling back to memory storage.");
+// Support both standard DATABASE_URL and SUPABASE_DB_URL
+const databaseUrl = process.env.DATABASE_URL || process.env.SUPABASE_DB_URL;
+
+if (!databaseUrl) {
+  console.warn("DATABASE_URL (or SUPABASE_DB_URL) not set. Falling back to memory storage.");
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL || "" });
+export const pool = new Pool({ connectionString: databaseUrl || "" });
 export const db = drizzle(pool, { schema });
