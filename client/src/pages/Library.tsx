@@ -3,17 +3,18 @@ import ArticleCard from "@/components/ArticleCard";
 import TextInput from "@/components/TextInput";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, Loader2, BookText } from "lucide-react";
+import { Search, Plus, Loader2, BookText, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { Article } from "@shared/schema";
 import { format } from "date-fns";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function Library() {
   const [showInput, setShowInput] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: articlesData = [], isLoading } = useQuery<Article[]>({
+  const { data: articlesData = [], isLoading, error, isError } = useQuery<Article[]>({
     queryKey: ["/api/articles"],
   });
 
@@ -23,7 +24,7 @@ export default function Library() {
     excerpt: article.originalText.substring(0, 150) + "...",
     level: 3,
     topic: article.topic || "Umum",
-    date: format(new Date(article.createdAt), "d MMM yyyy"),
+    date: article.createdAt ? format(new Date(article.createdAt), "d MMM yyyy") : "",
     wordCount: article.wordCount
   }));
   
@@ -75,6 +76,18 @@ export default function Library() {
             />
           </div>
         </div>
+
+        {isError && (
+          <Alert variant="destructive" className="mb-8">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Ralat Sambungan</AlertTitle>
+            <AlertDescription>
+              Gagal memuatkan kandungan. Sila pastikan sambungan internet anda baik.
+              <br />
+              <span className="text-xs opacity-70">Error: {error instanceof Error ? error.message : "Unknown error"}</span>
+            </AlertDescription>
+          </Alert>
+        )}
 
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
