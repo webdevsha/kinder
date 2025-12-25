@@ -22,6 +22,19 @@ const processRequestSchema = z.object({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Debug endpoint to check environment (without exposing secrets)
+  app.get("/api/debug", (_req, res) => {
+    res.json({
+      status: "online",
+      env: {
+        hasDatabaseUrl: !!(process.env.DATABASE_URL || process.env.SUPABASE_DB_URL),
+        hasGeminiKey: !!(process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY),
+        nodeEnv: process.env.NODE_ENV,
+        storageType: storage.constructor.name
+      }
+    });
+  });
+
   // Health check endpoint
   app.get("/api/health", async (_req, res) => {
     try {
@@ -32,7 +45,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         hasData 
       });
     } catch (error: any) {
-      res.status(500).json({ status: "error", message: error.message });
+      console.error("Health check failed:", error);
+      res.status(503).json({ 
+        status: "error", 
+        message: "Database connection failed",
+        details: error.message 
+      });
     }
   });
 
@@ -108,7 +126,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(articles);
     } catch (error: any) {
       console.error("Failed to fetch articles:", error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ 
+        error: "Database error", 
+        message: error.message 
+      });
     }
   });
 

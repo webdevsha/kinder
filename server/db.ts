@@ -1,4 +1,5 @@
-import { Pool } from 'pg';
+import pkg from 'pg';
+const { Pool } = pkg;
 import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
 
@@ -17,19 +18,17 @@ if (!databaseUrl) {
 const connectionConfig = {
   connectionString: databaseUrl || "postgres://dummy:dummy@localhost:5432/dummy",
   ssl: databaseUrl ? { rejectUnauthorized: false } : undefined,
-  max: 10, // Limit pool size for serverless
+  // Optimization for Vercel Serverless:
+  max: 1, // Keep pool small in serverless to prevent connection exhaustion
+  connectionTimeoutMillis: 2000, // Fail fast (2s) instead of hanging to avoid Vercel timeouts
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000, // Fail fast if cannot connect
 };
 
-// We create the pool even if URL is empty/dummy.
-// The app logic in storage.ts decides whether to use this pool or MemStorage.
 export const pool = new Pool(connectionConfig);
 
 // Handle pool errors to prevent process crash
 pool.on('error', (err) => {
   console.error('[db] Unexpected error on idle client', err);
-  // Don't exit process here in serverless environment
 });
 
 export const db = drizzle(pool, { schema });
