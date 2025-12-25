@@ -1,3 +1,4 @@
+import "dotenv/config"; // Load env vars immediately
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
@@ -54,7 +55,7 @@ app.use((req, res, next) => {
     const message = err.message || "Internal Server Error";
 
     res.status(status).json({ message });
-    return;
+    throw err;
   });
 
   // importantly only setup vite in development and after
@@ -67,18 +68,31 @@ app.use((req, res, next) => {
   }
 
   // Menggunakan port dari environment variable (Dyad/Cloud)
-  // atau 5000 sebagai fallback (Local)
-  const PORT = parseInt(process.env.PORT || '5000', 10);
+  // atau 5001 sebagai fallback (Local) untuk mengelakkan conflict dengan AirPlay (port 5000)
+  const PORT = parseInt(process.env.PORT || '5001', 10);
   
-  server.listen(PORT, () => {
-  log(`🚀 Aplikasi sedang berjalan di port ${PORT}`);
-});
+  const httpServer = server.listen(PORT, "0.0.0.0", () => {
+    log(`🚀 Aplikasi sedang berjalan di: http://0.0.0.0:${PORT}`);
+  });
+  
+  httpServer.on('error', (e: any) => {
+    if (e.code === 'EADDRINUSE') {
+      log(`❌ Port ${PORT} sedang digunakan. Sila matikan proses lain atau gunakan port berbeza.`);
+      process.exit(1);
+    } else {
+      throw e;
+    }
+  });
 
   // Graceful shutdown
-  process.on('SIGTERM', () => {
-    log('SIGTERM signal received: closing HTTP server');
-    server.close(() => {
+  const shutdown = () => {
+    log('Menutup server...');
+    httpServer.close(() => {
       log('Proses ditutup secara bersih.');
+      process.exit(0);
     });
-  });
+  };
+
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', shutdown);
 })();
