@@ -11,13 +11,14 @@ import type {
 import { articles, readingLevels, quizzes, writePrompts } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, count } from "drizzle-orm";
 
 export interface IStorage {
   // Article operations
   createArticle(article: InsertArticle): Promise<Article>;
   getArticle(id: string): Promise<Article | undefined>;
   getAllArticles(): Promise<Article[]>;
+  hasArticles(): Promise<boolean>; // Efficient check for seeding
   
   // Reading level operations
   createReadingLevel(level: InsertReadingLevel): Promise<ReadingLevel>;
@@ -72,6 +73,10 @@ export class MemStorage implements IStorage {
     return Array.from(this.articles.values()).sort(
       (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
     );
+  }
+
+  async hasArticles(): Promise<boolean> {
+    return this.articles.size > 0;
   }
 
   // Reading level operations
@@ -154,6 +159,11 @@ export class DatabaseStorage implements IStorage {
 
   async getAllArticles(): Promise<Article[]> {
     return await db.select().from(articles).orderBy(articles.createdAt);
+  }
+
+  async hasArticles(): Promise<boolean> {
+    const [result] = await db.select({ count: count() }).from(articles);
+    return Number(result.count) > 0;
   }
 
   async createReadingLevel(insertLevel: InsertReadingLevel): Promise<ReadingLevel> {

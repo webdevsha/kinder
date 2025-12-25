@@ -3,9 +3,9 @@ import { type InsertArticle } from "@shared/schema";
 
 export async function seedDatabase() {
   try {
-    // Check if data already exists
-    const articles = await storage.getAllArticles();
-    if (articles.length > 0) {
+    // Check if data already exists using efficient check
+    const hasData = await storage.hasArticles();
+    if (hasData) {
       console.log("[seed] Database already has data. Skipping seed.");
       return;
     }
