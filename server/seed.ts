@@ -1,12 +1,11 @@
-import { db } from "./db";
-import { articles, readingLevels, quizzes, writePrompts } from "@shared/schema";
-import { count } from "drizzle-orm";
+import { storage } from "./storage";
+import { type InsertArticle } from "@shared/schema";
 
 export async function seedDatabase() {
   try {
     // Check if data already exists
-    const [countResult] = await db.select({ count: count() }).from(articles);
-    if (countResult.count > 0) {
+    const articles = await storage.getAllArticles();
+    if (articles.length > 0) {
       console.log("[seed] Database already has data. Skipping seed.");
       return;
     }
@@ -14,7 +13,7 @@ export async function seedDatabase() {
     console.log("[seed] Seeding database with sample data...");
 
     // Sample Article 1: Technology in Education
-    const [article1] = await db.insert(articles).values({
+    const article1Data: InsertArticle = {
       title: "Teknologi Pintar dalam Pendidikan Malaysia",
       originalText: `Sekolah-sekolah di Malaysia kini semakin menggunakan teknologi untuk membantu pelajar belajar dengan lebih berkesan. Daripada tablet hingga aplikasi pembelajaran interaktif, teknologi digital telah mengubah cara pelajar menerima ilmu pengetahuan.
 
@@ -48,12 +47,13 @@ Guru-guru juga mendapati teknologi membantu mereka mengenal pasti pelajar yang m
           curriculum: "KSSM"
         }
       ],
-      availableLanguages: ["Bahasa Malaysia", "English", "中文", "தமிழ்"],
-      createdAt: new Date("2025-11-06T10:00:00")
-    }).returning();
+      availableLanguages: ["Bahasa Malaysia", "English", "中文", "தமிழ்"]
+    };
+
+    const article1 = await storage.createArticle(article1Data);
 
     // Reading levels for article 1
-    await db.insert(readingLevels).values([
+    const levels1 = [
       {
         articleId: article1.id,
         level: 1,
@@ -84,10 +84,14 @@ Guru-guru juga mendapati teknologi membantu mereka mengenal pasti pelajar yang m
         content: "Institusi pendidikan di seluruh Malaysia sedang menyaksikan transformasi pedagogi yang signifikan melalui integrasi teknologi digital yang komprehensif. Daripada peranti mudah alih kepada aplikasi pembelajaran adaptif, ekosistem digital telah merevolusikan paradigma penyampaian ilmu kontemporari dan pendekatan andragogi moden.\n\nAnalisis data Kementerian Pendidikan Malaysia mendedahkan bahawa lebih 80 peratus institusi pendidikan di kawasan metropolitan telah dilengkapi dengan infrastruktur telekomunikasi berkelajuan tinggi. Kewujudan infrastruktur ini membolehkan pendidik mengintegrasikan pelbagai medium digital yang sofistikated—termasuk video pendidikan interaktif, simulasi saintifik immersive, dan platform gamifikasi pembelajaran—untuk memperkayakan pengalaman holistik dalam persekitaran pembelajaran.\n\nPelajar Tahun 5 di Sekolah Kebangsaan Taman Desa, ibu kota Kuala Lumpur, kini mengakses repositori buku teks digital melalui peranti tablet peribadi. Nur Aisyah, 11 tahun, menyatakan perspektifnya: \"Pembelajaran berbantukan teknologi menawarkan engagement yang superior kerana kandungan multimedia interaktif memfasilitasi pemahaman mendalam terhadap konsep akademik yang kompleks.\"\n\nPara pendidik turut memanfaatkan analitik pembelajaran berbasis data untuk mengidentifikasi dan memberikan intervensi pedagogi yang personalized kepada pelajar yang memerlukan sokongan akademik tambahan secara lebih proaktif. Walau bagaimanapun, mereka menekankan imperatif untuk mengekalkan ekuilibrium strategik antara metodologi digital dan pendekatan pedagogi konvensional yang telah terbukti berkesan.",
         byline: "Versi diperkaya untuk pembaca lanjutan"
       }
-    ]);
+    ];
+
+    for (const level of levels1) {
+      await storage.createReadingLevel(level);
+    }
 
     // Quiz for article 1
-    await db.insert(quizzes).values({
+    await storage.createQuiz({
       articleId: article1.id,
       questions: [
         {
@@ -134,7 +138,7 @@ Guru-guru juga mendapati teknologi membantu mereka mengenal pasti pelajar yang m
     });
 
     // Write prompts for article 1
-    await db.insert(writePrompts).values({
+    await storage.createWritePrompts({
       articleId: article1.id,
       prompts: [
         "Pada pendapat anda, apakah kelebihan dan kekurangan menggunakan tablet untuk belajar berbanding buku biasa?",
@@ -144,7 +148,7 @@ Guru-guru juga mendapati teknologi membantu mereka mengenal pasti pelajar yang m
     });
 
     // Sample Article 2: Environment
-    const [article2] = await db.insert(articles).values({
+    const article2Data: InsertArticle = {
       title: "Kempen Kitar Semula di Sekolah",
       originalText: `Pelajar-pelajar Tahun 5 dan 6 di Sekolah Kebangsaan Bukit Bintang telah memulakan projek kitar semula yang menarik perhatian seluruh komuniti sekolah. Projek ini bertujuan untuk mengurangkan sisa pepejal dan mendidik pelajar tentang kepentingan menjaga alam sekitar.
 
@@ -171,12 +175,13 @@ Pelajar juga mengajar adik-adik mereka cara mengasingkan sampah dengan betul. Me
           curriculum: "KSSR"
         }
       ],
-      availableLanguages: ["Bahasa Malaysia", "English"],
-      createdAt: new Date("2025-11-05T14:30:00")
-    }).returning();
+      availableLanguages: ["Bahasa Malaysia", "English"]
+    };
+
+    const article2 = await storage.createArticle(article2Data);
 
     // Add reading level for article 2
-    await db.insert(readingLevels).values({
+    await storage.createReadingLevel({
       articleId: article2.id,
       level: 3,
       content: article2.originalText,
