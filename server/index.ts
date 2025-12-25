@@ -70,11 +70,7 @@ app.use((req, res, next) => {
   // atau 5000 sebagai fallback (Local) - Note: kept 5000 to match existing config
   const PORT = parseInt(process.env.PORT || '5000', 10);
   
-  server.listen({
-    port: PORT,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
+  server.listen(PORT, "0.0.0.0", () => {
     log(`🚀 Aplikasi sedang berjalan di: http://0.0.0.0:${PORT}`);
     log(`💡 Jika di Dyad, pastikan port ini di-forward atau dibuka.`);
   });
