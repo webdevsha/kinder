@@ -1,7 +1,5 @@
 import "./load-env"; // Must be the first import to load .env.local
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 
@@ -28,7 +26,10 @@ app.use((req, res, next) => {
     return originalResJson.apply(res, [bodyJson, ...args]);
   };
 
-  res.on("finish", () => {
+  res.on("finish", async () => {
+    // Dynamically import log only when needed to avoid early initialization issues
+    const { log } = await import("./vite");
+    
     const duration = Date.now() - start;
     if (path.startsWith("/api")) {
       let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
@@ -48,6 +49,10 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Dynamically import application modules AFTER env vars are loaded
+  const { registerRoutes } = await import("./routes");
+  const { setupVite, serveStatic, log } = await import("./vite");
+
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
