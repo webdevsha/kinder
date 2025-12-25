@@ -52,6 +52,10 @@ app.use((req, res, next) => {
   // Dynamically import application modules AFTER env vars are loaded
   const { registerRoutes } = await import("./routes");
   const { setupVite, serveStatic, log } = await import("./vite");
+  const { seedDatabase } = await import("./seed");
+
+  // Run database seeding
+  await seedDatabase();
 
   const server = await registerRoutes(app);
 
